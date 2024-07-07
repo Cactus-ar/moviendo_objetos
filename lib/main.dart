@@ -17,6 +17,7 @@ void main() {
 class Cuadrado extends PositionComponent
 {
   late double dimension;
+  late double angulo;
   late Vector2 vector;
   late Paint paint;
 
@@ -26,6 +27,7 @@ class Cuadrado extends PositionComponent
     size.setValues(dimension, dimension);
     anchor = Anchor.center;
     paint.strokeWidth = 2;
+
   }
 
   @override
@@ -33,6 +35,8 @@ class Cuadrado extends PositionComponent
     super.update(dt);
     // speed is refresh frequency independent
     position += vector * dt;
+    var anguloDelta = dt * angulo;
+    angle = (angle - anguloDelta) % (2 * pi);
   }
 
   @override
@@ -48,6 +52,17 @@ class MoviendoObjetos extends FlameGame with DoubleTapDetector, TapDetector
 {
   bool corriendo = true;
   var rnd = Random();
+
+  @override
+  bool debugMode = false; //on off extra data
+
+  final TextPaint etiqueta = TextPaint(
+    style: const TextStyle(
+      fontSize: 14.0,
+      fontFamily: 'Awesome Font',
+      color: Colors.white
+    ),
+  );
 
   @override
   void onTapUp(TapUpInfo info)
@@ -70,7 +85,9 @@ class MoviendoObjetos extends FlameGame with DoubleTapDetector, TapDetector
       Cuadrado agregar = Cuadrado();
       agregar.position = puntoTocaado;
       agregar.dimension = rnd.nextDouble() * 50;
-      agregar.vector = Vector2(0,1).normalized() * (rnd.nextDouble() * 30);
+      agregar.angulo = rnd.nextDouble() * 2;
+      var vect1 = rnd.nextDouble() * -1;
+      agregar.vector = Vector2(0,vect1).normalized() * (rnd.nextDouble() * 30);
       agregar.paint = crearPaint();
 
       add(agregar);
@@ -129,8 +146,13 @@ class MoviendoObjetos extends FlameGame with DoubleTapDetector, TapDetector
     } else {
       resumeEngine();
     }
-
     corriendo = !corriendo;
+  }
+
+  @override
+  void render(Canvas canvas) {
+    etiqueta.render(canvas, 'Objetos Activos: ${children.length}', Vector2(60, 20), anchor: Anchor.center);
+    super.render(canvas);
   }
 
 }
